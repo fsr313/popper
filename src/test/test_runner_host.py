@@ -122,6 +122,19 @@ class TestHostDockerRunner(PopperTest):
             c = dr._create_container(cid, step)
             self.assertEqual(c.status, "created")
             c.remove()
+        step = Box(
+            {
+                "uses": "docker://alpine:3.9",
+                "runs": ["echo", "hello_world"],
+                "id": "KoNtAiNeR tWo",
+            },
+            default_box=True,
+        )
+        cid = pu.sanitized_name(step.id, config.wid)
+        with DockerRunner(init_docker_client=True, config=config) as dr:
+            c = dr._create_container(cid, step)
+            self.assertEqual(c.status, "created")
+            c.remove()
 
     @unittest.skipIf(os.environ.get("ENGINE", "docker") != "docker", "ENGINE != docker")
     def test_stop_running_tasks(self):
@@ -227,7 +240,7 @@ class TestHostDockerRunner(PopperTest):
     @unittest.skipIf(os.environ.get("ENGINE", "docker") != "docker", "ENGINE != docker")
     def test_get_build_info(self):
         step = Box(
-            {"uses": "popperized/bin/sh@master", "args": ["ls"], "id": "one",},
+            {"uses": "popperized/bin/sh@master", "args": ["ls"], "id": "One",},
             default_box=True,
         )
         with DockerRunner(init_docker_client=False) as dr:
@@ -289,6 +302,9 @@ class TestHostDockerRunner(PopperTest):
 
         repo.close()
         shutil.rmtree(repo.working_dir, ignore_errors=True)
+    def test_text_id_step(self):
+        pass
+
 
 
 class TestHostSingularityRunner(PopperTest):
